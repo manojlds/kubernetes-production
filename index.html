@@ -20,7 +20,8 @@
         margin-bottom: 0;
       }
       .small-img img { width: 250px; height: 320px; }
-      .otto-img img { width: 640px; height: 226px; }
+      .kube-img img { width: 300; height: 261px; }
+      .full-img img { width: 100%; height: 100%; }
       .remark-slide-content h1 { font-size: 3em; }
       .remark-slide-content h2 { font-size: 2em; }
       .remark-slide-content h3 { font-size: 1.6em; }
@@ -112,7 +113,7 @@
         height: 92%;
         float: left;
       }
-      .left-column h2:last-of-type, .left-column h3:last-child {
+      .left-column h2:last-of-type, .left-column h3:last-child, h2 {
         color: red;
       }
       .right-column {
@@ -160,8 +161,153 @@ layout: false
 .right-column[
 At Indix, we have been running Kubernetes in production for more than 10 months now.
 
-This talk will give an intro to Kubernetes, and how we leverage Kubernetes for one of our products.
+This talk will beging with an intro to Kubernetes and its main concepts.
 
+We will also talk about how we leverage Kubernetes at Indix, how "production ready" it is and general pros and cons.
+
+]
+---
+.left-column[
+  ## Intro to Kubernetes
+]
+.right-column[
+Kubernetes is a tool for orchestrating containers across a cluster of nodes.
+
+.kube-img[![kube_logo](kube_logo.png)]
+
+Originally developed by Google and completely open source software.
+
+Mainly supports Docker as the container runtime, but also has support for Rkt and others coming soon.
+
+Can be run on bare metal or cloud. Has specific features to support cloud platforms like AWS and GCE.
+
+]
+---
+##Kubernetes Architecture
+.full-img[![kubernetes](kubernetes.png)]
+---
+.left-column[
+  ## Intro to Kubernetes
+  ### Kubernetes Architecture
+  ### Kubernetes Work Units
+]
+.right-column[
+  ## Pods
+  The lowest unit in Kubernetes
+
+  We don't schedule individual containers in Kubernetes, but a unit of multiple containers called Pod. Of course, a pod can have just one container in it.
+
+  Containers within a pod have the same IP and share the same port space. They can talk to each other via localhost.
+
+  For example, an application container and a log collector container can run together in a pod and work as a single unit.
+]
+---
+.left-column[
+  ## Intro to Kubernetes
+  ### Kubernetes Architecture
+  ### Kubernetes Work Units
+]
+.right-column[
+  ## Replication Controllers
+
+  Pods just define what is to be run. To create another replica of a pod, you have to create another pod. Also, if a pod dies, it has to be started again.
+
+  ReplicationControllers take care of these aspects - replicas and ensuring that the desired number of replicas are always running.
+
+  ## Replica Sets
+
+  Newer version of replication controllers. Currently differ from Replication Controllers only in the way pods are associated with them.
+
+  ## Deplyoments
+
+  Deployments let us create replica sets, and also define how rollbacks and upgrades are done. Deployments allow us to do rolling updates, for example.
+]
+---
+.left-column[
+  ## Intro to Kubernetes
+  ### Kubernetes Architecture
+  ### Kubernetes Work Units
+]
+.right-column[
+  ## Kubernetes Networking Model
+  Kubernetes networking dictates/ensures that each pod has its own virtual IP. This has to be uniques across the cluster.
+
+  Also, any pod can talk to any other pod via its IP.
+
+  This is so that there is no need to handle ports explicitly. Each pod gets its own IP and port space. Multiple replicas of the same application (and of course, other application) can thus run on the same node without having to be worry about what port each of them runs on.
+
+  We need each node in kubernetes to have a subnet assigned to it, and each pod within a node will get an IP from that subnet.
+
+  One way to achieve this is to use an overlay network like Flannel.
+]
+---
+.left-column[
+  ## Intro to Kubernetes
+  ### Kubernetes Architecture
+  ### Kubernetes Work Units
+]
+.right-column[
+  ## Services
+
+  Services allow applications to talk to each other and also enable acess from outside the cluster.
+
+  A Service is essentially a proxy that routes traffic to all replica pods. Services essentially get a virtual IP similar to pods, but this is a fixed IP.
+
+  Services can now communicate with each other using this fixed IP, and the requests are routed to actual (dynamic) IP addresses of the pods.
+
+  ### NodePort
+
+  Assign a port on ALL nodes in the cluster, on which to access the cluster
+
+  ### LoadBalancer
+
+  Create a cloud platform specific load balancer (ELB in case of AWS) to route requests to the service.
+]
+---
+.left-column[
+  ## Intro to Kubernetes
+  ### Kubernetes Architecture
+  ### Kubernetes Work Units
+]
+.right-column[
+  ## Labels
+
+  Labels tie together pods, replica sets, deployments and services.
+
+  Pods with particular labels are created, ensured to be alive and replicated by replica sets through deployments.
+
+  Service route requests to pods that match the labels they are configured for
+
+  ## Namespaces
+
+  Namespace allow multiple "virtual clusters" to operate in a single kubernetes cluster. For example, staging and production can be two namespaces for, well, staging and production environments.
+]
+---
+.left-column[
+  ## Intro to Kubernetes
+  ### Kubernetes Architecture
+  ### Kubernetes Work Units
+]
+.right-column[
+  ## Service Discovery
+
+  Environment variables are injected into containers with information on all services in the same namespace.
+
+  For example
+
+  ```bash
+  REDIS_MASTER_SERVICE_HOST=10.0.0.11
+  REDIS_MASTER_SERVICE_PORT=6379
+  REDIS_MASTER_PORT=tcp://10.0.0.11:6379
+  REDIS_MASTER_PORT_6379_TCP=tcp://10.0.0.11:6379
+  REDIS_MASTER_PORT_6379_TCP_PROTO=tcp
+  REDIS_MASTER_PORT_6379_TCP_PORT=6379
+  REDIS_MASTER_PORT_6379_TCP_ADDR=10.0.0.11
+  ```
+
+  There is also a internal cluster DNS that can be used. Services can be reached at `service-1` within namespace, and `service-1.namespace-1` to access from different namespace.
+
+  Ports can be discoverd by doing a DNS SRV request.
 ]
 ---
 name: last-page
@@ -169,7 +315,7 @@ template: inverse
 
 ###Follow me on twitter [@manojlds](https://twitter.com/manojlds)
 
-###Read my blog at [http://stacktoheap.com](http://stacktoheap.com)
+###I blog at [https://stacktoheap.com](https://stacktoheap.com)
 
 ###This presentation is available at [https://bit.ly/k8sprod](https://bit.ly/k8sprod)
 
