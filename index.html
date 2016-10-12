@@ -19,8 +19,8 @@
         font-weight: 400;
         margin-bottom: 0;
       }
-      .small-img img { width: 250px; height: 320px; }
-      .kube-img img { width: 300; height: 261px; }
+      .small-img img { width: 250px; height: 320px; margin-left: auto; margin-right: auto; display: block; }
+      .kube-img img { width: 300px; height: 261px; margin-left: auto; margin-right: auto; display: block;}
       .full-img img { width: 100%; height: 100%; }
       .remark-slide-content h1 { font-size: 3em; }
       .remark-slide-content h2 { font-size: 2em; }
@@ -144,8 +144,6 @@ layout: false
 .right-column[
   Principle Engineer at **Indix**
 
-  Previously worked with **ThoughtWorks**.
-
   Author of the book [Learning Continuous Integration with TeamCity](https://bitly.com/learningci)
 
   .small-img[![book](book.jpg)]
@@ -159,12 +157,11 @@ layout: false
   ## What is the talk about?
 ]
 .right-column[
-At Indix, we have been running Kubernetes in production for more than 10 months now.
+At Indix, we have been running Kubernetes in production for more than .green[10 months now].
 
-This talk will beging with an intro to Kubernetes and its main concepts.
+This talk will begin with an intro to Kubernetes and its main concepts.
 
-We will also talk about how we leverage Kubernetes at Indix, how "production ready" it is and general pros and cons.
-
+We will also talk about how we leverage Kubernetes at Indix, how "production ready" it is, and general pros and cons.
 ]
 ---
 .left-column[
@@ -175,9 +172,9 @@ Kubernetes is a tool for orchestrating containers across a cluster of nodes.
 
 .kube-img[![kube_logo](kube_logo.png)]
 
-Originally developed by Google and completely open source software.
+Originally developed by Google and completely open source software. Google's infrastructure is not based on Kubernetes, but their cloud offering .green[Google Container Engine (GKE)] is.
 
-Mainly supports Docker as the container runtime, but also has support for Rkt and others coming soon.
+Mainly supports .green[Docker] as the container runtime, but also has support for Rkt and others coming soon.
 
 Can be run on bare metal or cloud. Has specific features to support cloud platforms like AWS and GCE.
 
@@ -193,13 +190,13 @@ Can be run on bare metal or cloud. Has specific features to support cloud platfo
 ]
 .right-column[
   ## Pods
-  The lowest unit in Kubernetes
+  - The lowest unit in Kubernetes
 
-  We don't schedule individual containers in Kubernetes, but a unit of multiple containers called Pod. Of course, a pod can have just one container in it.
+  - We don't schedule individual containers in Kubernetes, but .green[a collection one or more containers] called Pod.
 
-  Containers within a pod have the same IP and share the same port space. They can talk to each other via localhost.
+  - Containers within a pod .green[have the same IP] and share the same port space. They can talk to each other via localhost.
 
-  For example, an application container and a log collector container can run together in a pod and work as a single unit.
+  - For example, an application container and a log collector container can run together in a pod and work as a single unit.
 ]
 ---
 .left-column[
@@ -212,7 +209,7 @@ Can be run on bare metal or cloud. Has specific features to support cloud platfo
 
   Pods just define what is to be run. To create another replica of a pod, you have to create another pod. Also, if a pod dies, it has to be started again.
 
-  ReplicationControllers take care of these aspects - replicas and ensuring that the desired number of replicas are always running.
+  ReplicationControllers take care of these aspects - .green[replicas and ensuring that the desired number of replicas are always running].
 
   ## Replica Sets
 
@@ -220,7 +217,7 @@ Can be run on bare metal or cloud. Has specific features to support cloud platfo
 
   ## Deplyoments
 
-  Deployments let us create replica sets, and also define how rollbacks and upgrades are done. Deployments allow us to do rolling updates, for example.
+  Deployments let us create replica sets, and also define how .green[rollbacks and upgrades are done]. Deployments allow us to do rolling updates, for example.
 ]
 ---
 .left-column[
@@ -249,7 +246,7 @@ Can be run on bare metal or cloud. Has specific features to support cloud platfo
 .right-column[
   ## Services
 
-  Services allow applications to talk to each other and also enable acess from outside the cluster.
+  Services allow .green[applications discover to talk with each other], and also enable access from outside the cluster.
 
   A Service is essentially a proxy that routes traffic to all replica pods. Services essentially get a virtual IP similar to pods, but this is a fixed IP.
 
@@ -291,7 +288,7 @@ Can be run on bare metal or cloud. Has specific features to support cloud platfo
 .right-column[
   ## Service Discovery
 
-  Environment variables are injected into containers with information on all services in the same namespace.
+  .green[Environment variables are injected into containers] with information on all services in the same namespace.
 
   For example
 
@@ -305,13 +302,34 @@ Can be run on bare metal or cloud. Has specific features to support cloud platfo
   REDIS_MASTER_PORT_6379_TCP_ADDR=10.0.0.11
   ```
 
-  There is also a internal cluster DNS that can be used. Services can be reached at `service-1` within namespace, and `service-1.namespace-1` to access from different namespace.
+  There is also a .green[internal cluster DNS] that can be used. Services can be reached at `service-1` within namespace, and `service-1.namespace-1` to access from different namespace.
 
   Ports can be discoverd by doing a DNS SRV request.
 ]
 ---
+.left-column[
+## Kubernetes at Indix
+### Setting up the cluster
+]
+.right-column[
+We use .green[terraform and ansible] to provision and configure our cluster.
+
+We use .green[CoreOS] for all the instances in the cluster. CoreOS has proven to be a very stable and minimal OS for running containers.
+
+Our kubernetes cluster .green[is aware that it is on AWS], and supports features like mounting EBS volumes into containers, and creating ELBs for services.
+
+We do Kubernetes major version upgrades by creating a whole new cluster and migrating the apps to it. (Terraform makes this easy!)
+]
+---
+## Kubernetes at Indix Architecture
+
+.full-img[![kubernetes-indix](kubernetes-indix.png)]
+
+---
 name: last-page
 template: inverse
+
+#Questions?
 
 ###Follow me on twitter [@manojlds](https://twitter.com/manojlds)
 
