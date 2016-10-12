@@ -289,6 +289,53 @@ We do Kubernetes major version upgrades by creating a whole new cluster and migr
 .full-img[![kubernetes-indix](kubernetes-indix.png)]
 
 ---
+.left-column[
+## Kubernetes at Indix
+### Setting up the cluster
+### Kubernetes at Indix Architecture
+### Pros and Cons
+]
+.right-column[
+## Pros
+- Massively easy deployments and enables CD.
+
+- Cheap environments via Namespaces.
+
+- Can run stateless and stateful apps.
+
+- Batteries included. Lots of newer features like DaemonSets, Jobs, PetSets, Ingress and more.
+
+- Nice clean abstraction with Pods, RCs/RS, Deplyoments and services.
+
+- Service discovery is neat.
+
+- Cloud support is nice to have.
+
+- Dashboard is awesome and continuosly improving.
+
+- Amazing community, and one of the most active projects in recent times.
+
+]
+---
+.left-column[
+## Kubernetes at Indix
+### Setting up the cluster
+### Kubernetes at Indix Architecture
+### Pros and Cons
+]
+.right-column[
+## Cons
+- Only has support for docker containers. Other runtime support is still not ready for primetime, and doesn't allow running simple binaries (think Go binaries.)
+
+- Volumes support is not fully fleshed out yet (but lots of work in progress.) May have to choose to run only stateless apps in production.
+
+- HA story is not too great.
+
+- Built in scripts to setup kubernetes are too opaque and make lots of assumption. Upgrades are tricky. kubeadm and kops are things to watch out.
+
+- AWS support is not as great as GCE support.
+]
+---
 name: last-page
 template: inverse
 
